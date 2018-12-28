@@ -1,0 +1,47 @@
+'Using by VB.NET
+Public Class Form1
+    Private Sub Form1_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+
+        'Turn on exception capturing
+        Try
+            'Loop Exec
+            Do
+                'Judge Network is available
+                If My.Computer.Network.IsAvailable = True Then
+                    'Judge file directory can be read
+                    If My.Computer.FileSystem.DirectoryExists("DEFINE AS YOU NEED") = True Then
+                        'get commandline 1st parameter
+                        Dim arg As String = Environment.GetCommandLineArgs(1)
+                        'Split by “|”, then traversing all result
+                        If arg.Contains("|") = True Then
+                            For Each driver As String In arg.Split("|")
+                                'Split by “:”, then get target drive letter and path
+                                Dim letter As String = driver.Split(":")(0)
+                                Dim path As String = driver.Split(":")(1)
+                                'Delete target driver letter, then mapping again
+                                Shell("net use " + letter + ": /DELETE", AppWinStyle.Hide, True)
+                                Shell("net use " + letter + ": " + path + " /persistent:yes", AppWinStyle.Hide, False)
+                            Next
+                        Else
+                            Dim letter As String = arg.Split(":")(0)
+                            Dim path As String = arg.Split(":")(1)
+                            'Delete target driver letter, then mapping again
+                            Shell("net use " + letter + ": /DELETE", AppWinStyle.Hide, True)
+                            Shell("net use " + letter + ": " + path + " /persistent:yes", AppWinStyle.Hide, False)
+                        End If
+                        'Exit Loop
+                        Exit Do
+                    End If
+                End If
+                'If network down, loop wait 60s
+                Threading.Thread.Sleep(60000)
+            Loop
+            'Exit Loop
+            End
+        Catch ex As Exception
+            'Exit directly when a program exception is caught
+            End
+        End Try
+
+    End Sub
+End Class
